@@ -5,7 +5,7 @@ import { differenceInSeconds } from "date-fns"
 const basicAxios = axios.create({
     baseURL: "https://jordan.ashton.fashion/api/goods/30/comments",
     timeout: 20000,
-    withCredentials: true,
+    withCredentials: false,
 })
 
 let timeout: Date

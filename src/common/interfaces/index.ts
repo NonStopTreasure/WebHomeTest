@@ -1,3 +1,5 @@
+import {RouteTypes} from "../enums";
+
 export interface ICommentsListDataArray {
     id: number
     name: string
@@ -29,4 +31,11 @@ export interface ICommentsList {
     to: number
     total: number
 
+}
+
+export interface IRouteModel {
+    id: string
+    url: string
+    exact: boolean
+    type: RouteTypes
 }

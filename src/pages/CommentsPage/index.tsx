@@ -1,15 +1,20 @@
-import React, {createElement, FC, useEffect, useState} from 'react';
+import React, {FC, useEffect, useState} from 'react';
 import {ICommentsList, ICommentsListDataArray} from "../../common/interfaces";
 import {requestGetComments} from "../../common/api/CommentsPage";
 import {AxiosResponse} from "axios";
-import {List, Comment, Avatar, Tooltip} from 'antd';
-import {DislikeOutlined, LikeOutlined, DislikeFilled, LikeFilled} from '@ant-design/icons';
+import {List, Comment, Avatar, Spin} from 'antd';
+import {UserOutlined} from '@ant-design/icons';
+import {format} from "date-fns";
+
+import "./style.scss"
+
 
 export interface ICommentsPageProps {
 }
 
-const CommentsPage: FC<ICommentsPageProps> = () => {
 
+const CommentsPage: FC<ICommentsPageProps> = () => {
+    const [isLoading, setIsLoading] = useState<boolean>(true)
     const [comments, setComments] = useState<ICommentsList>({
         current_page: 0,
         data: [],
@@ -25,62 +30,33 @@ const CommentsPage: FC<ICommentsPageProps> = () => {
         to: 0,
         total: 0
     })
-    const [likes, setLikes] = useState(0);
-    const [dislikes, setDislikes] = useState(0);
-    const [action, setAction] = useState<string | null>(null);
 
 
     useEffect(() => {
         requestGetComments().then(
             (response: AxiosResponse<ICommentsList>) => setComments(response.data)
-        )
+        ).finally(() => setIsLoading(false))
     }, [])
 
-    const like = () => {
-        setLikes(1);
-        setDislikes(0);
-        setAction('liked');
-    };
-
-    const dislike = () => {
-        setLikes(0);
-        setDislikes(1);
-        setAction('disliked');
-    };
-
-    const actions = [
-        <Tooltip key="comment-basic-like" title="Like">
-      <span onClick={like}>
-        {createElement(action === 'liked' ? LikeFilled : LikeOutlined)}
-          <span className="comment-action">{likes}</span>
-      </span>
-        </Tooltip>,
-        <Tooltip key="comment-basic-dislike" title="Dislike">
-      <span onClick={dislike}>
-        {React.createElement(action === 'disliked' ? DislikeFilled : DislikeOutlined)}
-          <span className="comment-action">{dislikes}</span>
-      </span>
-        </Tooltip>,
-        <span key="comment-basic-reply-to">Reply to</span>,
-    ];
+    if (isLoading) {
+        return <Spin size="large"/>
+    }
 
     return (
         <div className="comments-page">
-            <div className="new-comment"/>
-            <div className="comments-list">
+            <div className="comments-block">
                 <List
-                    className="comment-list"
-                    header={`${comments.data.length} replies`}
+                    className="comments-list"
                     itemLayout="horizontal"
                     dataSource={comments.data}
                     renderItem={(item: ICommentsListDataArray): React.ReactElement => (
-                        <li>
+                        <li className="list-item">
                             <Comment
-                                actions={actions}
-                                author={item.name}
-                                avatar={<Avatar/>}
-                                content={item.text}
-                                datetime={item.created_at}
+                                className="item-content"
+                                author={<p>{item.name}</p>}
+                                avatar={<Avatar size={64} icon={<UserOutlined/>}/>}
+                                content={<p>{item.text}</p>}
+                                datetime={format(new Date(item.created_at), "dd:MM - ss:mm")}
                             />
                         </li>
                     )}
